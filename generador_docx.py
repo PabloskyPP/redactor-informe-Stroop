@@ -64,7 +64,7 @@ def agregar_portada(doc: Document, nombre_completo: str, datos: dict) -> None:
     nota.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     nota_run = nota.add_run(f"Este es un informe de evaluación cognitiva, obtenido a partir del rendimiento de {nombre_completo} en la prueba Stroop (Tarea de Interferencia Palabra-Color).")
     doc.add_paragraph()  # Espacio
-    doc.add_paragraph()  # Espacio
+    nota.add_run("\n" + "-" * 50 + "\n")  # Línea de separación
     nota.add_run("\nInforme confidencial de uso profesional y educativo")
     nota_run.italic = True
     nota_run.font.size = Pt(12)
