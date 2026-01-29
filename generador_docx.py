@@ -258,35 +258,65 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
     clas_C = resultados.get('Clasificacion_C', 'normal')
     clas_PC = resultados.get('Clasificacion_PC', 'normal')
     
-    # Construir diferentes variantes de clave para buscar
-    # Formato: "P <clasificacion>, C <clasificacion> y PC <clasificacion>"
-    # Ejemplos: "P bajo, C normal y PC alto", "P, C y PC normales"
-    
-    # Caso especial: todos iguales
-    if clas_P == clas_C == clas_PC:
-        if clas_P == 'normal':
-            clave_PT = 'P, C y PC normales'
-        elif clas_P == 'bajo':
-            clave_PT = 'P, C y PC bajo '
-        else:  # alto
-            clave_PT = 'P, C y PC alto '
-    # Dos iguales
-    elif clas_P == clas_C:
-        clave_PT = f'P y C {clas_P} y PC {clas_PC}'
-    elif clas_P == clas_PC:
-        clave_PT = f'P {clas_P}, C {clas_C} y PC {clas_P}'
-    elif clas_C == clas_PC:
-        clave_PT = f'P {clas_P} y C y PC {clas_C}'
-    # Todos diferentes
-    else:
-        clave_PT = f'P {clas_P}, C {clas_C} y PC {clas_PC}'
+    # Función auxiliar para buscar la clave correcta en el diccionario
+    def encontrar_clave_PT(p, c, pc):
+        """Genera posibles claves y busca en PARRAFOS_PT"""
+        # Probar diferentes variantes de clave
+        claves_posibles = []
+        
+        # Caso especial: todos iguales
+        if p == c == pc:
+            if p == 'normal':
+                claves_posibles.append('P, C y PC normales')
+            elif p == 'bajo':
+                claves_posibles.extend(['P, C y PC bajo', 'P, C y PC bajo '])
+            else:  # alto
+                claves_posibles.extend(['P, C y PC alto', 'P, C y PC alto '])
+        # Dos iguales: P y C
+        elif p == c and p != pc:
+            claves_posibles.extend([
+                f'P y C {p} y PC {pc}',
+                f'P y C {p} y PC {pc} ',
+            ])
+        # Dos iguales: P y PC
+        elif p == pc and p != c:
+            claves_posibles.extend([
+                f'P {p}, C {c} y PC {p}',
+                f'P {p}, C {c} y PC {p} ',
+            ])
+        # Dos iguales: C y PC
+        elif c == pc and c != p:
+            claves_posibles.extend([
+                f'P {p} y C y PC {c}',
+                f'P {p} y C y PC {c} ',
+                f'P {p}, C y PC {c}',
+                f'P {p}, C y PC {c} ',
+            ])
+        # Todos diferentes
+        else:
+            claves_posibles.extend([
+                f'P {p}, C {c} y PC {pc}',
+                f'P {p}, C {c} y PC {pc} ',
+                f'P {p} y C {c} y PC {pc}',
+                f'P {p} y C {c} y PC {pc} ',
+            ])
+        
+        # Buscar primera clave que exista
+        for clave in claves_posibles:
+            if clave in PARRAFOS_PT:
+                return clave
+        
+        return None
     
     # Buscar y añadir párrafo correspondiente
-    if clave_PT in PARRAFOS_PT:
+    clave_PT = encontrar_clave_PT(clas_P, clas_C, clas_PC)
+    
+    if clave_PT and clave_PT in PARRAFOS_PT:
         texto_pt = PARRAFOS_PT[clave_PT].format(nombre=nombre)
         doc.add_paragraph(texto_pt)
     else:
-        # Si no se encuentra la clave exacta, agregar un mensaje por defecto
+        # Si no se encuentra la clave, agregar mensaje de debug
+        print(f"Advertencia: No se encontró texto para P={clas_P}, C={clas_C}, PC={clas_PC}")
         doc.add_paragraph(f"Resultados: P={clas_P}, C={clas_C}, PC={clas_PC}")
     
     doc.add_paragraph()  # Espacio
@@ -294,16 +324,28 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
     # Párrafo condicional de E (Errores) e INT (Interferencia)
     clas_E = resultados.get('Clasificacion_E', 'normal')
     clas_INT = resultados.get('Clasificacion_INT', 'normal')
-    clave_E_INT = f'E {clas_E} y INT {clas_INT}'
     
-    if clave_E_INT in TEXTO_ERROR_y_INT:
-        texto_e_int = TEXTO_ERROR_y_INT[clave_E_INT].format(nombre=nombre)
-        doc.add_paragraph(texto_e_int)
+    # Probar diferentes variantes de clave
+    claves_e_int_posibles = [
+        f'E {clas_E} y INT {clas_INT}',
+        f'E y INT {clas_INT}',  # Caso especial para 'E y INT bajo'
+    ]
+    
+    texto_encontrado = False
+    for clave_E_INT in claves_e_int_posibles:
+        if clave_E_INT in TEXTO_ERROR_y_INT:
+            texto_e_int = TEXTO_ERROR_y_INT[clave_E_INT].format(nombre=nombre)
+            doc.add_paragraph(texto_e_int)
+            texto_encontrado = True
+            break
+    
+    if not texto_encontrado:
+        print(f"Advertencia: No se encontró texto para E={clas_E}, INT={clas_INT}")
     
     doc.add_paragraph()  # Espacio
 
     # Párrafo final sobre posible dislexia (solo en ciertos casos)
-    if clave_PT in TEXTO_FINAL_PosibleDislexia:
+    if clave_PT and clave_PT in TEXTO_FINAL_PosibleDislexia:
         texto_final = TEXTO_FINAL_PosibleDislexia[clave_PT].format(nombre=nombre)
         doc.add_paragraph(texto_final)
 

@@ -75,8 +75,19 @@ def calcular_puntuaciones_directas(datos):
     df = datos['datos_stroop']
     
     # Extraer series del campo 'Ensayo' (P, C y PC)
-    # La serie es la primera letra del ensayo
-    df['serie'] = df['Ensayo'].str[0]
+    # La serie puede ser P, C o PC (dos letras)
+    def extraer_serie(ensayo):
+        """Extrae la serie del ensayo (P, C o PC)"""
+        if ensayo.startswith('PC'):
+            return 'PC'
+        elif ensayo.startswith('P'):
+            return 'P'
+        elif ensayo.startswith('C'):
+            return 'C'
+        else:
+            return None
+    
+    df['serie'] = df['Ensayo'].apply(extraer_serie)
     
     # Diccionario para almacenar las puntuaciones por serie
     series = ['P', 'C', 'PC']
