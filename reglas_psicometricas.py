@@ -17,6 +17,17 @@ def obtener_baremos_edad(edad):
     else:
         return 'Error participante menor de 16 años, grupo sin baremos. Los baremos del manual son experimentales, cabe contrastarlos con datos poblacionales propios'
 
+        if  45  <= edad <= 64:
+            baremo = baremos[grupo]
+            baremo['P'] += 8
+            baremo['C'] += 4
+            baremo['PC'] += 5
+
+        if edad >= 65:
+            baremo = baremos[grupo]
+            baremo['P'] += 14
+            baremo['C'] += 11
+            baremo['PC'] += 15    
 
 
 def clasificar_PD(PD_total):
