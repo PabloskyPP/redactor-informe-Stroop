@@ -1,0 +1,121 @@
+GUÍA RÁPIDA - GENERADOR DE INFORMES TEST STROOP
+=============================================
+
+📦 INSTALACIÓN
+==============
+
+1. Asegúrate de tener Python 3.7+ instalado:
+   
+   python --version
+
+2. Instala las dependencias:
+   
+   pip install -r requirements.txt
+
+
+🎯 USO BÁSICO
+=============
+
+OPCIÓN A: Usar el programa principal (main.py)
+-----------------------------------------------
+
+1. Abre main.py en un editor de texto
+
+2. Modifica las siguientes líneas (aproximadamente línea 13-15):
+
+   RUTA_EXCEL = r"C:\ruta\a\tu\archivo.xlsx"
+   RUTA_SALIDA = r"C:\ruta\donde\guardar\Informe.docx"
+   NOMBRE_CASO = "Nombre del Paciente"
+
+3. Guarda el archivo
+
+4. Ejecuta el programa:
+
+   python main.py
+
+
+OPCIÓN B: Usar el ejemplo (ejemplo_uso.py)
+-------------------------------------------
+
+1. Abre ejemplo_uso.py en un editor de texto
+
+2. Modifica las líneas 13-18 con tus rutas y nombre
+
+3. Ejecuta:
+
+   python ejemplo_uso.py
+
+
+📊 FORMATO DEL EXCEL
+====================
+
+Tu archivo Excel DEBE tener dos hojas:
+
+HOJA 1: "info"
+--------------
+| age |
+|-----|
+| 25  |
+
+
+HOJA 2: "Stroop"
+------------
+| Ensayo | PD     |
+|--------|--------|
+| P      | 2      | 
+| C      | 1      | 
+| PC     | 3      |
+
+
+✅ RESULTADO
+============
+
+El programa generará un informe profesional en Word (.docx) que incluye:
+
+✓ Descripción del test: objetivo, procedimiento e índices
+✓ Tabla con puntuaciones directas y típicas
+✓ Interpretación detallada de cada índice
+✓ Síntesis del perfil atencional del evaluado
+
+
+🔍 PUNTUACIONES CALCULADAS
+===========================
+
+Puntuación Directa (PD) y Típica (PT) de las partes: Palabras (P), Colores (C), Palabras-Colores (PC). Y puntuación compuesta Interferencia (INT), siendo INT = PC-PC' (puntuación esperada en PC) = PC- CxP /C+P
+
+
+🆘 SOLUCIÓN DE PROBLEMAS
+=========================
+
+Error: "ModuleNotFoundError: No module named 'pandas'"
+→ Ejecuta: pip install -r requirements.txt
+
+Error: "FileNotFoundError"
+→ Verifica que la ruta del Excel es correcta
+→ Usa r"C:\..." para rutas en Windows
+
+Error: "KeyError: 'age'"
+→ Verifica que la hoja "info" tiene la columna "age"
+
+Error al generar el documento
+→ Verifica que tienes permisos de escritura en la ruta de salida
+→ Cierra el archivo si está abierto en Word
+
+
+📧 CONTACTO
+===========
+
+Para soporte o dudas sobre el programa, contacta al desarrollador.
+
+
+🎓 CRÉDITOS
+===========
+
+Basado en:
+- Test de Stroop,Test de Colores y Palabras.  (Charles & Golden)
+- Baremos del manual oficial de TEA 3ºEdición STROOP - Test de Colores y Palabras (Charles & Golden, Ed. Madrid 2001)n
+- Normas de aplicación y corrección estándar
+
+═══════════════════════════════════════════════════════════════
+© 2026 - Generador automático de informes Test Stroop.
+═══════════════════════════════════════════════════════════════
