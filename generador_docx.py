@@ -125,17 +125,56 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
     run = parrafo.add_run(PARRAFOS_FIJOS['titulo_procedimiento'])
     run.bold = True
     doc.add_paragraph(PARRAFOS_FIJOS['descripcion_procedimiento1'])
+    
     # Imagen parte P
     script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'images')
     grafico_path = os.path.join(script_dir, 'P.png')
+    if os.path.exists(grafico_path):
+        try:
+            # Obtener dimensiones de la imagen
+            img = Image.open(grafico_path)
+            width, height = img.size
+            # Aplicar factor de escala
+            new_width = Inches(width / 96 * scale_factor_width)  # 96 DPI
+            new_height = Inches(height / 96 * scale_factor_height)
+            # Agregar imagen
+            doc.add_picture(grafico_path, width=new_width, height=new_height)
+            last_paragraph = doc.paragraphs[-1]
+            last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        except Exception as e:
+            print(f"Advertencia: No se pudo insertar la imagen P.png: {e}")
+    
     doc.add_paragraph(PARRAFOS_FIJOS['descripcion_procedimiento2'])
+    
     # Imagen parte C
-    script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'images')
     grafico_path = os.path.join(script_dir, 'C.png')
+    if os.path.exists(grafico_path):
+        try:
+            img = Image.open(grafico_path)
+            width, height = img.size
+            new_width = Inches(width / 96 * scale_factor_width)
+            new_height = Inches(height / 96 * scale_factor_height)
+            doc.add_picture(grafico_path, width=new_width, height=new_height)
+            last_paragraph = doc.paragraphs[-1]
+            last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        except Exception as e:
+            print(f"Advertencia: No se pudo insertar la imagen C.png: {e}")
+    
     doc.add_paragraph(PARRAFOS_FIJOS['descripcion_procedimiento3'])
+    
     # Imagen parte PC
-    script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'images')
     grafico_path = os.path.join(script_dir, 'PC.png')
+    if os.path.exists(grafico_path):
+        try:
+            img = Image.open(grafico_path)
+            width, height = img.size
+            new_width = Inches(width / 96 * scale_factor_width)
+            new_height = Inches(height / 96 * scale_factor_height)
+            doc.add_picture(grafico_path, width=new_width, height=new_height)
+            last_paragraph = doc.paragraphs[-1]
+            last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        except Exception as e:
+            print(f"Advertencia: No se pudo insertar la imagen PC.png: {e}")
 
     parrafo = doc.add_paragraph()
     run = parrafo.add_run(PARRAFOS_FIJOS['titulo_indices'])
@@ -155,48 +194,52 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
     run.font.size = Pt(14)
     doc.add_paragraph()  # Espacio
     
-    parrafo = doc.add_paragraph()
-    run = parrafo.add_run(PARRAFOS_FIJOS['titulo_resultados'].format(nombre_completo=nombre_completo))
-    run.bold = True
-    doc.add_paragraph(PARRAFOS_FIJOS['texto_tabla_resultados'])
+    doc.add_paragraph(PARRAFOS_FIJOS['texto_tabla_resultados'].format(nombre=nombre, nombre_completo=nombre_completo))
 
     # Tabla PDs, PTs y clasificaciones
-
     tabla = doc.add_table(rows=4, cols=6)
     tabla.style = 'Light Grid Accent 1'
     
     # Encabezados
     hdr_cells = tabla.rows[0].cells
     hdr_cells[0].text = ''
-    hdr_cells[1].text = 'Palabras'
-    hdr_cells[2].text = 'Colores'
-    hdr_cells[3].text = 'Palabras-Colores'
-    hdr_cells[4].text = 'Interferencia'
-    hdr_cells[5].text = 'Número de errores'
+    hdr_cells[1].text = 'Palabras (P)'
+    hdr_cells[2].text = 'Colores (C)'
+    hdr_cells[3].text = 'Palabras-Colores (PC)'
+    hdr_cells[4].text = 'Interferencia (INT)'
+    hdr_cells[5].text = 'Errores (E)'
 
     # Centrar el texto en las celdas del encabezado
     for cell in hdr_cells:
         for paragraph in cell.paragraphs:
             paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
             
-    # Fila 1: PD
+    # Fila 1: PD (Puntuación Directa)
     row1 = tabla.rows[1].cells
-    row1[0].text = 'Puntuación directa'
-    for i, serie in enumerate(['P', 'C', 'PC', 'I', 'E']):
-        row1[i+1].text = str(resultados.get(f'PD_esperada_{serie}', 0))
+    row1[0].text = 'Puntuación Directa (PD)'
+    row1[1].text = str(resultados.get('PD_P', 0))
+    row1[2].text = str(resultados.get('PD_C', 0))
+    row1[3].text = str(resultados.get('PD_PC', 0))
+    row1[4].text = str(round(resultados.get('Indice_interferencia', 0), 2))
+    row1[5].text = str(resultados.get('PD_E', 0))
     
-    # Fila 2: PT
+    # Fila 2: PT (Puntuación Típica) - E no tiene PT
     row2 = tabla.rows[2].cells
-    row2[0].text = 'Puntuación típica'
-    for i, serie in enumerate(['P', 'C', 'PC', 'I', 'E']):
-        row2[i+1].text = str(resultados.get(f'PD_{serie}', 0))
+    row2[0].text = 'Puntuación Típica (PT)'
+    row2[1].text = str(resultados.get('PT_P', '-'))
+    row2[2].text = str(resultados.get('PT_C', '-'))
+    row2[3].text = str(resultados.get('PT_PC', '-'))
+    row2[4].text = str(resultados.get('PT_INT', '-'))
+    row2[5].text = '-'  # E no tiene PT
     
-    # Fila 3: clasificación
+    # Fila 3: Clasificación (bajo/normal/alto)
     row3 = tabla.rows[3].cells
     row3[0].text = 'Rendimiento'
-    for i, serie in enumerate(['P', 'C', 'PC', 'I', 'E']):
-        indice = resultados.get(f'Clasificacion_{serie}', 0)
-        row3[i+1].text = str(indice)
+    row3[1].text = str(resultados.get('Clasificacion_P', '-'))
+    row3[2].text = str(resultados.get('Clasificacion_C', '-'))
+    row3[3].text = str(resultados.get('Clasificacion_PC', '-'))
+    row3[4].text = str(resultados.get('Clasificacion_INT', '-'))
+    row3[5].text = str(resultados.get('Clasificacion_E', '-'))
 
     # Centrar el texto en las celdas de las filas 1, 2 y 3
     for row in [row1, row2, row3]:
@@ -210,17 +253,59 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
     # PÁRRAFOS CONDICIONALES
     # ========================================================================
 
-    # ========================================================================
-    # DESCRIPCIÓN DE PUNTUACIONES DIRECTAS
-
-    # Seleccionar y añadir párrafo según clasificación
-    clasificacion = resultados.get('Clasificacion_PD', 'normal')
-    if clasificacion in PARRAFOS_PD:
-        texto_pd = PARRAFOS_PD[clasificacion].format(Nombre=nombre, nombre=nombre)
-        doc.add_paragraph(texto_pd)
+    # Construir clave para buscar el párrafo condicional de P, C y PC
+    clas_P = resultados.get('Clasificacion_P', 'normal')
+    clas_C = resultados.get('Clasificacion_C', 'normal')
+    clas_PC = resultados.get('Clasificacion_PC', 'normal')
     
-    doc.add_paragraph()  # Espacio 
+    # Construir diferentes variantes de clave para buscar
+    # Formato: "P <clasificacion>, C <clasificacion> y PC <clasificacion>"
+    # Ejemplos: "P bajo, C normal y PC alto", "P, C y PC normales"
+    
+    # Caso especial: todos iguales
+    if clas_P == clas_C == clas_PC:
+        if clas_P == 'normal':
+            clave_PT = 'P, C y PC normales'
+        elif clas_P == 'bajo':
+            clave_PT = 'P, C y PC bajo '
+        else:  # alto
+            clave_PT = 'P, C y PC alto '
+    # Dos iguales
+    elif clas_P == clas_C:
+        clave_PT = f'P y C {clas_P} y PC {clas_PC}'
+    elif clas_P == clas_PC:
+        clave_PT = f'P {clas_P}, C {clas_C} y PC {clas_P}'
+    elif clas_C == clas_PC:
+        clave_PT = f'P {clas_P} y C y PC {clas_C}'
+    # Todos diferentes
+    else:
+        clave_PT = f'P {clas_P}, C {clas_C} y PC {clas_PC}'
+    
+    # Buscar y añadir párrafo correspondiente
+    if clave_PT in PARRAFOS_PT:
+        texto_pt = PARRAFOS_PT[clave_PT].format(nombre=nombre)
+        doc.add_paragraph(texto_pt)
+    else:
+        # Si no se encuentra la clave exacta, agregar un mensaje por defecto
+        doc.add_paragraph(f"Resultados: P={clas_P}, C={clas_C}, PC={clas_PC}")
+    
+    doc.add_paragraph()  # Espacio
 
+    # Párrafo condicional de E (Errores) e INT (Interferencia)
+    clas_E = resultados.get('Clasificacion_E', 'normal')
+    clas_INT = resultados.get('Clasificacion_INT', 'normal')
+    clave_E_INT = f'E {clas_E} y INT {clas_INT}'
+    
+    if clave_E_INT in TEXTO_ERROR_y_INT:
+        texto_e_int = TEXTO_ERROR_y_INT[clave_E_INT].format(nombre=nombre)
+        doc.add_paragraph(texto_e_int)
+    
+    doc.add_paragraph()  # Espacio
+
+    # Párrafo final sobre posible dislexia (solo en ciertos casos)
+    if clave_PT in TEXTO_FINAL_PosibleDislexia:
+        texto_final = TEXTO_FINAL_PosibleDislexia[clave_PT].format(nombre=nombre)
+        doc.add_paragraph(texto_final)
 
     # ========================================================================
     return doc

@@ -79,7 +79,7 @@ def calcular_puntuaciones_directas(datos):
     df['serie'] = df['Ensayo'].str[0]
     
     # Diccionario para almacenar las puntuaciones por serie
-    series = ['P', 'C', 'PC', 'E']
+    series = ['P', 'C', 'PC']
     
     resultados = {
         'edad': datos['edad'],
@@ -92,7 +92,7 @@ def calcular_puntuaciones_directas(datos):
         'PD_P': 0,
         'PD_C': 0,
         'PD_PC': 0,
-        'PD_E': 0,
+        'PD_E': 0,  # Errores totales
         # Índices de interferencia
         'Indice_interferencia': 0,
         
@@ -103,9 +103,19 @@ def calcular_puntuaciones_directas(datos):
     }
 
     # Calcular INTERFERENCIA = PC - PC' (puntuación esperada en PC) = PC - CxP /C+P
-    # Calcular puntuaciones directas por serie
+    # Calcular puntuaciones directas por serie (número de aciertos)
     for serie in series:
         resultados[f'PD_{serie}'] = df[df['serie'] == serie]['Correcto'].sum()
+    
+    # Calcular total de errores (E) - suma de todos los errores de todas las series
+    # Verificar si existe la columna 'Errores' o 'Error' en el DataFrame
+    if 'Errores' in df.columns:
+        resultados['PD_E'] = df['Errores'].sum()
+    elif 'Error' in df.columns:
+        resultados['PD_E'] = df['Error'].sum()
+    else:
+        # Si no hay columna de errores, calcular como inverso de correctos
+        resultados['PD_E'] = len(df) - df['Correcto'].sum()
     
     # Calcular puntuaciones esperadas
     PD_P = resultados['PD_P']
