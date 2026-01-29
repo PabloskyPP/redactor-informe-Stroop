@@ -45,7 +45,8 @@ def leer_datos_excel(ruta_archivo):
             nombre = None
         
         # Leer hoja 'stroop' con los datos del test
-        df_stroop = pd.read_excel(ruta_archivo, sheet_name='stroop')
+        # header=None porque no hay fila de encabezados, los datos empiezan en la primera fila
+        df_stroop = pd.read_excel(ruta_archivo, sheet_name='stroop', header=None)
         
         return {
             'edad': edad,
