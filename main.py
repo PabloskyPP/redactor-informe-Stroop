@@ -14,7 +14,7 @@ def main():
     Función principal que ejecuta todo el proceso
     """
     # Configuración
-    RUTA_EXCEL = r"C:\Users\Pablo\OneDrive\Escritorio\data\Pablo Prada.xlsx"
+    RUTA_EXCEL = r"C:\Users\Pablo\OneDrive\Escritorio\data\Pablo Prada Campello.xlsx"
     NOMBRE_CASO = "Pablo"  # Nombre de fallback si no está en el Excel (se usa sub_num si está disponible)
     
     # Determinar la ruta de la carpeta informes_generados
