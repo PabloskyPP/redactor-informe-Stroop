@@ -61,7 +61,8 @@ def main():
         print(f"    Puntuación directa P: {resultados['PD_P']}")
         print(f"    Puntuación directa C: {resultados['PD_C']}")
         print(f"    Puntuación directa PC: {resultados['PD_PC']}")
-        print(f"    Puntuación directa INT: {resultados['Indice_interferencia']}")
+        print(f"    Puntuación directa E (errores): {resultados['PD_E']}")
+        print(f"    Índice de interferencia (INT): {resultados['Indice_interferencia']:.2f}")
     except Exception as e:
         print(f"   X Error al calcular puntuaciones: {e}")
         sys.exit(1)
@@ -73,10 +74,11 @@ def main():
     try:
         clasificaciones = obtener_puntuaciones_tipicas(resultados)
 
-        print(f"    PT_P: {resultados['PT_P']}")
-        print(f"    PT_C: {resultados['PT_C']}")
-        print(f"    PT_PC: {resultados['PT_PC']}")
-        print(f"    PT_INT: {resultados['PT_INT']}")
+        print(f"    PT_P: {resultados['PT_P']} (Clasificación: {resultados['Clasificacion_P']})")
+        print(f"    PT_C: {resultados['PT_C']} (Clasificación: {resultados['Clasificacion_C']})")
+        print(f"    PT_PC: {resultados['PT_PC']} (Clasificación: {resultados['Clasificacion_PC']})")
+        print(f"    PT_INT: {resultados['PT_INT']} (Clasificación: {resultados['Clasificacion_INT']})")
+        print(f"    Clasificación E: {resultados['Clasificacion_E']}")
     except Exception as e:
         print(f"   X Error al obtener clasificaciones: {e}")
         sys.exit(1)

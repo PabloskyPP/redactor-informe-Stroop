@@ -272,19 +272,15 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
                 claves_posibles.extend(['P, C y PC bajo', 'P, C y PC bajo '])
             else:  # alto
                 claves_posibles.extend(['P, C y PC alto', 'P, C y PC alto '])
-        # Dos iguales: P y C
+        # Dos iguales: P y C (pero PC diferente)
         elif p == c and p != pc:
             claves_posibles.extend([
                 f'P y C {p} y PC {pc}',
                 f'P y C {p} y PC {pc} ',
+                f'P C {p} y PC {pc}',  # Variante sin 'y' al principio
+                f'P C {p} y PC {pc} ',
             ])
-        # Dos iguales: P y PC
-        elif p == pc and p != c:
-            claves_posibles.extend([
-                f'P {p}, C {c} y PC {p}',
-                f'P {p}, C {c} y PC {p} ',
-            ])
-        # Dos iguales: C y PC
+        # Dos iguales: C y PC (pero P diferente)
         elif c == pc and c != p:
             claves_posibles.extend([
                 f'P {p} y C y PC {c}',
@@ -292,7 +288,8 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
                 f'P {p}, C y PC {c}',
                 f'P {p}, C y PC {c} ',
             ])
-        # Todos diferentes
+        # Todos diferentes O P y PC iguales (C diferente)
+        # En textos.py, P=PC se escribe como si todos fueran diferentes
         else:
             claves_posibles.extend([
                 f'P {p}, C {c} y PC {pc}',
