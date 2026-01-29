@@ -64,6 +64,7 @@ def agregar_portada(doc: Document, nombre_completo: str, datos: dict) -> None:
     nota.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     nota_run = nota.add_run(f"Este es un informe de evaluación cognitiva, obtenido a partir del rendimiento de {nombre_completo} en la prueba Stroop (Tarea de Interferencia Palabra-Color).")
     doc.add_paragraph()  # Espacio
+    doc.add_paragraph()  # Espacio
     nota.add_run("\nInforme confidencial de uso profesional y educativo")
     nota_run.italic = True
     nota_run.font.size = Pt(12)
@@ -111,11 +112,6 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
     # DESCRIPCIÓN DE LA PRUEBA
     # ========================================================================
     
-    parrafo = doc.add_paragraph()
-    run = parrafo.add_run(PARRAFOS_FIJOS['titulo'])
-    run.bold = True
-    doc.add_paragraph(PARRAFOS_FIJOS['introduccion'].format(nombre=nombre))
-
     parrafo = doc.add_paragraph()
     run = parrafo.add_run(PARRAFOS_FIJOS['titulo_general_prueba'])
     run.bold = True
@@ -198,7 +194,12 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
 
     # Tabla PDs, PTs y clasificaciones
     tabla = doc.add_table(rows=4, cols=6)
-    tabla.style = 'Light Grid Accent 1'
+
+    # Aplicar estilo simple con bordes negros y encabezado con fondo gris claro
+    tabla.style = 'Table Grid'
+    # Aplicar fondo gris claro al encabezado
+    for cell in tabla.rows[0].cells:
+        cell._element.get_or_add_tcPr().append(parse_xml(r'<w:shd {} w:fill="D9D9D9"/>'.format(nsdecls('w'))))
     
     # Encabezados
     hdr_cells = tabla.rows[0].cells
@@ -306,17 +307,16 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
         return None
     
     # Buscar y añadir párrafo correspondiente
+    texto_condicional = ""
     clave_PT = encontrar_clave_PT(clas_P, clas_C, clas_PC)
     
     if clave_PT and clave_PT in PARRAFOS_PT:
         texto_pt = PARRAFOS_PT[clave_PT].format(nombre=nombre)
-        doc.add_paragraph(texto_pt)
+        texto_condicional += texto_pt
     else:
         # Si no se encuentra la clave, agregar mensaje de debug
         print(f"Advertencia: No se encontró texto para P={clas_P}, C={clas_C}, PC={clas_PC}")
-        doc.add_paragraph(f"Resultados: P={clas_P}, C={clas_C}, PC={clas_PC}")
-    
-    doc.add_paragraph()  # Espacio
+        texto_condicional += f"Resultados: P={clas_P}, C={clas_C}, PC={clas_PC}. "
 
     # Párrafo condicional de E (Errores) e INT (Interferencia)
     clas_E = resultados.get('Clasificacion_E', 'normal')
@@ -332,19 +332,20 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
     for clave_E_INT in claves_e_int_posibles:
         if clave_E_INT in TEXTO_ERROR_y_INT:
             texto_e_int = TEXTO_ERROR_y_INT[clave_E_INT].format(nombre=nombre)
-            doc.add_paragraph(texto_e_int)
+            texto_condicional += texto_e_int
             texto_encontrado = True
             break
     
     if not texto_encontrado:
         print(f"Advertencia: No se encontró texto para E={clas_E}, INT={clas_INT}")
     
-    doc.add_paragraph()  # Espacio
-
     # Párrafo final sobre posible dislexia (solo en ciertos casos)
     if clave_PT and clave_PT in TEXTO_FINAL_PosibleDislexia:
         texto_final = TEXTO_FINAL_PosibleDislexia[clave_PT].format(nombre=nombre)
-        doc.add_paragraph(texto_final)
+        texto_condicional += texto_final
+
+    # Añadir todo el texto condicional al documento en un solo párrafo
+    doc.add_paragraph(texto_condicional)
 
     # ========================================================================
     return doc

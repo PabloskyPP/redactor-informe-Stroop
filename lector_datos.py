@@ -63,35 +63,29 @@ def calcular_puntuaciones_directas(datos):
     """
     Calcula las puntuaciones directas del test Stroop
     
+    Estructura esperada del Excel (hoja 'stroop'):
+    - Primera columna: índices (P, C, PC, E)
+    - Segunda columna: valores de puntuaciones directas
+    
     Args:
         datos: Dict con 'edad' y 'datos_stroop'
         
     Returns:
-        dict: Diccionario con todas las puntuaciones directas y por fila.
-              Incluye estructuras explícitas para:
-                - Respuestas dadas
-                - Respuestas  correctas
+        dict: Diccionario con todas las puntuaciones directas
     """
     df = datos['datos_stroop']
     
-    # Extraer series del campo 'Ensayo' (P, C y PC)
-    # La serie puede ser P, C o PC (dos letras)
-    def extraer_serie(ensayo):
-        """Extrae la serie del ensayo (P, C o PC)"""
-        if ensayo.startswith('PC'):
-            return 'PC'
-        elif ensayo.startswith('P'):
-            return 'P'
-        elif ensayo.startswith('C'):
-            return 'C'
-        else:
-            return None
+    # La estructura es: primera columna = índices, segunda columna = valores
+    # Obtenemos los nombres de las columnas (pueden variar)
+    columnas = df.columns.tolist()
     
-    df['serie'] = df['Ensayo'].apply(extraer_serie)
+    if len(columnas) < 2:
+        raise ValueError("El Excel debe tener al menos 2 columnas (índices y valores)")
+    
+    col_indice = columnas[0]  # Primera columna con los índices (P, C, PC, E)
+    col_valor = columnas[1]   # Segunda columna con los valores
     
     # Diccionario para almacenar las puntuaciones por serie
-    series = ['P', 'C', 'PC']
-    
     resultados = {
         'edad': datos['edad'],
         'sub_num': datos.get('sub_num'),
@@ -99,36 +93,35 @@ def calcular_puntuaciones_directas(datos):
         'nombre': datos.get('nombre'),
         'datos_stroop': df,
         
-        # Puntuaciones directas por serie (número de aciertos)
+        # Puntuaciones directas por serie
         'PD_P': 0,
         'PD_C': 0,
         'PD_PC': 0,
         'PD_E': 0,  # Errores totales
-        # Índices de interferencia
+        
+        # Índice de interferencia
         'Indice_interferencia': 0,
         
         # Puntuaciones esperadas
-        'PD_esperada_P': 0,
-        'PD_esperada_C': 0,
         'PD_esperada_PC': 0,
     }
-
-    # Calcular INTERFERENCIA = PC - PC' (puntuación esperada en PC) = PC - CxP /C+P
-    # Calcular puntuaciones directas por serie (número de aciertos)
-    for serie in series:
-        resultados[f'PD_{serie}'] = df[df['serie'] == serie]['Correcto'].sum()
     
-    # Calcular total de errores (E) - suma de todos los errores de todas las series
-    # Verificar si existe la columna 'Errores' o 'Error' en el DataFrame
-    if 'Errores' in df.columns:
-        resultados['PD_E'] = df['Errores'].sum()
-    elif 'Error' in df.columns:
-        resultados['PD_E'] = df['Error'].sum()
-    else:
-        # Si no hay columna de errores, calcular como inverso de correctos
-        resultados['PD_E'] = len(df) - df['Correcto'].sum()
+    # Leer los valores del DataFrame según el índice
+    for idx, row in df.iterrows():
+        indice = str(row[col_indice]).strip().upper()
+        valor = row[col_valor]
+        
+        # Asignar el valor según el índice
+        if indice == 'P':
+            resultados['PD_P'] = valor
+        elif indice == 'C':
+            resultados['PD_C'] = valor
+        elif indice == 'PC':
+            resultados['PD_PC'] = valor
+        elif indice == 'E':
+            resultados['PD_E'] = valor
     
-    # Calcular puntuaciones esperadas
+    # Calcular puntuaciones esperadas: PC' = (P × C) / (P + C)
     PD_P = resultados['PD_P']
     PD_C = resultados['PD_C']
     if PD_C + PD_P > 0:
@@ -136,7 +129,7 @@ def calcular_puntuaciones_directas(datos):
     else:
         resultados['PD_esperada_PC'] = 0
     
-    # Calcular índice de interferencia
+    # Calcular índice de interferencia: Interferencia = PC - PC'
     resultados['Indice_interferencia'] = resultados['PD_PC'] - resultados['PD_esperada_PC']
     
     return resultados
