@@ -37,6 +37,7 @@ env/
 Thumbs.db
 
 # Test files
+*.xlsx
 *.docx
 
 # Generated reports folder
