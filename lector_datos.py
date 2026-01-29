@@ -122,7 +122,7 @@ def calcular_puntuaciones_directas(datos):
         elif indice == 'E':
             resultados['PD_E'] = valor
     
-    # Calcular puntuaciones esperadas: PC' = (P × C) / (P + C)
+    # Calcular puntuaciones esperadas: PC' = (P * C) / (P + C)
     PD_P = resultados['PD_P']
     PD_C = resultados['PD_C']
     if PD_C + PD_P > 0:
