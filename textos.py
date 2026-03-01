@@ -28,7 +28,7 @@ PARRAFOS_FIJOS = {
     • Finalmente, otra puntuación que se obtiene para cada parte de la prueba es el número de errores (E), veces en las que se nombra un color diferente al que corresponde en la lista.
     
 Por último, a partir de estas puntuaciones se obtiene una puntuación compuesta:
-    • El índice de resistencia a la interferencia (INT). Sirve para señalar individuos con bajo, promedio o alto potencial de flexibilidad cognitiva, adaptación al estrés cognitivo y creatividad. Este índice se calcula a partir de la siguiente fórmula: INT = PC-PC' (puntuación esperada en PC) = PC- CxP /C+P
+    • El índice de resistencia a la interferencia (INT). Sirve para señalar individuos con bajo, normal o alto potencial de flexibilidad cognitiva, adaptación al estrés cognitivo y creatividad. Este índice se calcula a partir de la siguiente fórmula: INT = PC-PC' (puntuación esperada en PC) = PC- CxP /C+P
      """,
     
     'titulo_resultados': "Presentación de los resultados de {nombre_completo}",

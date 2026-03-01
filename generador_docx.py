@@ -65,7 +65,7 @@ def agregar_portada(doc: Document, nombre_completo: str, datos: dict) -> None:
     nota_run = nota.add_run(f"Este es un informe de evaluación cognitiva, obtenido a partir del rendimiento de {nombre_completo} en la prueba Stroop (Tarea de Interferencia Palabra-Color).")
     doc.add_paragraph()  # Espacio
     nota.add_run("\n" + "-" * 50 + "\n")  # Línea de separación
-    nota.add_run("\nInforme confidencial de uso profesional y educativo")
+    nota.add_run("\nInforme confidencial  de carácter educativo u orientativo. No es un diagnóstico clínico y su interpretación es conveniente la realice un profesional competente.")
     nota_run.italic = True
     nota_run.font.size = Pt(12)
 
@@ -241,6 +241,26 @@ def crear_informe_docx(resultados, clasificaciones, nombre_caso="caso", scale_fa
     row3[3].text = str(resultados.get('Clasificacion_PC', '-'))
     row3[4].text = str(resultados.get('Clasificacion_INT', '-'))
     row3[5].text = str(resultados.get('Clasificacion_E', '-'))
+
+    # Verde si es alto, rojo si es bajo (columnas: Palabras, Colores, Palabras-Colores e Interferencia)
+    green_if_high = [1, 2, 3, 4]  # Índices de columnas para P, C, PC e INT
+    # Rojo si es alto, verde si es bajo (columnas: Errores)
+    red_if_high = [5]
+    
+    for idx in green_if_high:
+        clasificacion = str(row3[idx].text).lower()
+        if clasificacion == 'alto':
+            row3[idx]._element.get_or_add_tcPr().append(parse_xml(r'<w:shd {} w:fill="90EE90"/>'.format(nsdecls('w'))))
+        elif clasificacion == 'bajo':
+            row3[idx]._element.get_or_add_tcPr().append(parse_xml(r'<w:shd {} w:fill="FF6B6B"/>'.format(nsdecls('w'))))
+    
+    for idx in red_if_high:
+        clasificacion = str(row3[idx].text).lower()
+        if clasificacion == 'alto':
+            row3[idx]._element.get_or_add_tcPr().append(parse_xml(r'<w:shd {} w:fill="FF6B6B"/>'.format(nsdecls('w'))))
+        elif clasificacion == 'bajo':
+            row3[idx]._element.get_or_add_tcPr().append(parse_xml(r'<w:shd {} w:fill="90EE90"/>'.format(nsdecls('w'))))
+
 
     # Centrar el texto en las celdas de las filas 1, 2 y 3
     for row in [row1, row2, row3]:
