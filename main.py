@@ -15,8 +15,10 @@ def main():
     """
     # Configuración
     RUTA_EXCEL = r"C:\Users\Pablo\OneDrive\Escritorio\data\Pablo Prada Campello.xlsx"
-    NOMBRE_CASO = "Pablo"  # Nombre de fallback si no está en el Excel (se usa sub_num si está disponible)
-    
+    # Extraer NOMBRE_CASO del nombre del archivo Excel (primera palabra antes del espacio)
+    nombre_archivo = os.path.basename(RUTA_EXCEL)
+    NOMBRE_CASO = nombre_archivo.split()[0] if nombre_archivo.split() else "Informe"
+        
     # Determinar la ruta de la carpeta informes_generados
     script_dir = os.path.dirname(os.path.abspath(__file__))
     carpeta_informes = os.path.join(script_dir, "informes_generados")
